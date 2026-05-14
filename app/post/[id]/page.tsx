@@ -12,13 +12,11 @@ export default function PostPage() {
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [loading, setLoading] = useState(true)
   const [posting, setPosting] = useState(false)
-  const [currentUser, setCurrentUser] = useState<any>(null)
   const dark = true
   useEffect(() => {
     if (!id) return
     fetchPost()
     fetchComments()
-    supabase.auth.getUser().then(({ data: { user } }) => setCurrentUser(user))
   }, [id])
   const fetchPost = async () => {
     const { data } = await supabase.from('posts').select('*, boards(name, slug)').eq('id', id).single()
@@ -42,7 +40,7 @@ export default function PostPage() {
   const handleComment = async () => {
     if (!newComment.trim()) return
     setPosting(true)
-    await supabase.from('comments').insert({ post_id: id, body: newComment.trim(), is_anonymous: isAnonymous, author_id: currentUser?.id || null })
+    await supabase.from('comments').insert({ post_id: id, body: newComment.trim(), is_anonymous: isAnonymous })
     setNewComment('')
     fetchComments()
     setPosting(false)
@@ -61,7 +59,6 @@ export default function PostPage() {
   const border = '#1e1e3a'
   if (loading) return <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: muted }}>Loading...</p></div>
   if (!post) return <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: muted }}>Post not found.</p></div>
-  const isPostOwner = true
   return (
     <div style={{ minHeight: '100vh', background: bg, color: text, fontFamily: 'Inter, sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg, #7C3AED, #EC4899)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', position: 'sticky', top: 0, zIndex: 50 }}>
@@ -74,9 +71,7 @@ export default function PostPage() {
             <span style={{ background: 'rgba(124,58,237,0.15)', color: '#a78bfa', fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '20px' }}>r/{post.boards?.slug}</span>
             {post.is_anonymous && <span style={{ background: 'rgba(236,72,153,0.12)', color: '#EC4899', fontSize: '11px', padding: '3px 8px', borderRadius: '20px' }}>👤 VITian</span>}
             <span style={{ marginLeft: 'auto', fontSize: '11px', color: muted }}>{timeAgo(post.created_at)}</span>
-            {isPostOwner && (
-              <button onClick={handleDeletePost} style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}>🗑️ Delete</button>
-            )}
+            <button onClick={handleDeletePost} style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '4px 10px', borderRadius: '8px', fontSize: '12px', cursor: 'pointer' }}>🗑️ Delete</button>
           </div>
           <h1 style={{ fontWeight: 800, fontSize: '20px', color: text, marginBottom: '10px', lineHeight: 1.4 }}>{post.title}</h1>
           {post.body && <p style={{ fontSize: '14px', color: muted, lineHeight: 1.7, marginBottom: '12px' }}>{post.body}</p>}
@@ -108,9 +103,7 @@ export default function PostPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
                 <span style={{ color: '#a78bfa', fontSize: '12px', fontWeight: 600 }}>{c.is_anonymous ? '👤 VITian' : 'User'}</span>
                 <span style={{ color: muted, fontSize: '11px' }}>· {timeAgo(c.created_at)}</span>
-                {currentUser && c.author_id === currentUser.id && (
-                  <button onClick={() => handleDeleteComment(c.id)} style={{ marginLeft: 'auto', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}>🗑️</button>
-                )}
+                <button onClick={() => handleDeleteComment(c.id)} style={{ marginLeft: 'auto', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '3px 8px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}>🗑️</button>
               </div>
               <p style={{ color: text, fontSize: '14px', lineHeight: 1.6, margin: 0 }}>{c.body}</p>
             </div>
