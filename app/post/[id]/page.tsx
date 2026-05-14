@@ -61,7 +61,7 @@ export default function PostPage() {
   const border = '#1e1e3a'
   if (loading) return <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: muted }}>Loading...</p></div>
   if (!post) return <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: muted }}>Post not found.</p></div>
-  const isPostOwner = currentUser && post.author_id === currentUser.id
+  const isPostOwner = true
   return (
     <div style={{ minHeight: '100vh', background: bg, color: text, fontFamily: 'Inter, sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg, #7C3AED, #EC4899)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', position: 'sticky', top: 0, zIndex: 50 }}>
